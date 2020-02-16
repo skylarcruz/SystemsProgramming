@@ -1,0 +1,64 @@
+#!/bin/bash
+
+if [ $# == 0 ]
+then
+	echo "Error: arguments needed"
+	exit 1
+fi
+
+for var in $@
+do
+	# Don't process -l argument
+	if ! [ $var == "-l" ]
+	then
+		# verify local file doesn't exist
+		if ! [ -f "$var" ]
+		then
+			# verify repository file exists
+			if [ -d "$VTOP/src/$var" ]
+			then
+				. $VTOP/src/$var/state
+				# if -l switch on
+				if [ $1 == "-l" ]
+				then
+					echo "-l switch engaged"
+					# if current file is locked
+					if ! [ $locker == NULL ]
+					then
+						echo "Error: File is locked. Can't check out"
+						exit 1
+					else
+						echo "File ready for check out"
+						# Create new state (Lock File)
+						rm $VTOP/src/$var/state
+						echo -e "file=\"$var\"\nlocker=$USER\nwhen=\"$(date)\"\nversion=$version" >> $VTOP/src/$var/state
+						echo "Repository file Locked"
+						# Copy latest version to local directory
+						cp $VTOP/src/$var/$version.$var $var
+						echo "Repository file copied to local directory"
+						# Set permissions
+						chmod u+w $var
+					fi
+				fi
+				if ! [ $1 == "-l" ]
+				then
+					ln $VTOP/src/$var/$version.$var $var
+					echo "copied Read-Only links to local directory"
+				fi
+			fi
+		else
+			echo "Error: File exists in local directory already."
+		fi
+	fi
+	echo ""
+done
+
+# vco[-1] $x
+	# if not locked
+		# cp $VTOP/src/$x/$something
+			# $x
+		# $x=whoami
+		# chmod u+w $x
+	# else
+		# error
+	# if no [-l] link

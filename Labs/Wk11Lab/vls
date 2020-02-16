@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for var in $VTOP/src/*/state
+do
+	. $var
+	echo "filename: $file"
+	echo "Locked: $locker"
+	echo "Modified: $when"
+	echo "Version #: $version"
+	echo ""
+done

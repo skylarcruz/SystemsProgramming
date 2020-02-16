@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -d "$VTOP" ];
+then
+	echo "exists";
+else
+	mkdir $VTOP
+	mkdir $VTOP/etc
+	mkdir $VTOP/src
+	echo "Repository created"
+fi

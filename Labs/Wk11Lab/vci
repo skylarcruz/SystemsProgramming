@@ -1,0 +1,68 @@
+#!/bin/bash
+
+if [ $# == 0 ]
+then
+	echo "Error: arguments needed"
+	exit 1
+fi
+
+# Loop through all arguments
+for var in $@
+do
+	# Check if file exists locally
+	if [ -r "$var" -a -f "$var" ]
+	then
+		# If first commit
+		if ! [ -d "$VTOP/src/$var" ]
+		then
+			echo "Initial Commit"
+			echo "--------------"
+			# Make the directory
+			mkdir "$VTOP/src/$var"
+			echo "Directory \"$var\" created"
+			# Make the state file
+			echo -e "file=\"$var\"\nlocker=\"NULL\"\nwhen=\"$(date)\"\nversion=1" >> $VTOP/src/$var/state
+			echo "State file created"
+			# Copy file to VTOP
+			cp $var $VTOP/src/$var/1.$var
+			echo "Local file added to repository"
+			# Set Permission to read only
+			chmod 444 $VTOP/src/$var/1.$var
+			# remove local file
+			rm $var
+			echo "Local file removed"
+		# else not first commit
+		else
+			# check if locked
+			. $VTOP/src/$var/state
+			if ! [ $locker == \"NULL\" ]
+			then
+				# If locked, check if locked by user
+				if [ $locker == $USER ]
+				then
+					# increment $version
+					let version=version+1
+					# create new state
+					rm $VTOP/src/$var/state
+					echo -e "file=\"$var\"\nlocker=\"NULL\"\nwhen=\"$(date)\"\nversion=$version" >> $VTOP/src/$var/state
+					echo "State file updated"
+					# cp new file with version
+					cp $var $VTOP/src/$var/$version.$var
+					echo "New version file added to repository"
+					# Set permissions
+					chmod 444 $VTOP/src/$var/$version.$var
+					# remove local file
+					rm $var
+					echo "Local file removed"
+				else
+					echo "Error: Not locked by this user."
+				fi
+			else
+				echo "File not checked out, no changed made."
+			fi
+		fi
+	else
+		echo "Error: Local file doesn't exist"
+	fi
+	echo ""
+done

@@ -1,0 +1,65 @@
+Extra Notes:
+    Will have 2 current working directories per connection
+
+1. Client -> Server
+    (A9) - Killed
+    Same as HW9
+
+2. Client(Prompt)
+    Server(wait) for connection
+        (listen(1))
+    
+    a. mkdir
+        fork()
+            exec(mkdir)
+    // mkdir similar to previous assignment/lab?
+
+    b. remote mkdir
+        -send request to server
+        -A/E
+        -fork()
+            exec(mkdir)
+
+    c. rtree
+        -E/Aport
+        -close(1); dup(port file descriptor)
+        -exec(tree)
+
+    d. rcd          Server
+        C --------> chdir() // check if exists/have permissions
+
+
+----------------------------------------
+Day 2
+----------------------------------------
+
+Using rls control connection
+
+Server                  Client
+------                  ------
+accept()                connect()
+    -control -----> A
+                        >rls
+           D <--------      -control
+bind()
+listen()
+    -control -----> A   port (connect(port))
+accept()
+           L <-------- 
+    -control -----> A
+exec(ls) -data ---------> readport
+
+------------------
+
+write(sfd, ch, 1) // write 1 character at a time
+
+buffer[4096]
+
+read(sfd, &buffer[i], 1)
+...if (buffer[i+1] == "\n"
+...break;
+i++
+
+check for EOF error
+        
+    
